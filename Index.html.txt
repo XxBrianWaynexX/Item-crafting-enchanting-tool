@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crafting & Enchanting Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    select, input, button {
+      margin: 10px 0;
+      padding: 8px;
+      width: 100%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    table, th, td {
+      border: 1px solid black;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+    }
+    .failure {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Crafting & Enchanting Tool</h1>
+    <label for="item">Select an Item:</label>
+    <select id="item">
+      <option value="Sword">Sword</option>
+      <option value="Shield">Shield</option>
+      <option value="Bow">Bow</option>
+      <option value="Plate Armor">Plate Armor</option>
+      <option value="Ring">Ring</option>
+    </select>
+
+    <label for="enchantment">Select an Enchantment:</label>
+    <select id="enchantment">
+      <option value="Flaming Weapon">Flaming Weapon</option>
+      <option value="Frost Weapon">Frost Weapon</option>
+      <option value="Lightning Weapon">Lightning Weapon</option>
+      <option value="Armor of Resistance">Armor of Resistance</option>
+      <option value="Cloak of Invisibility">Cloak of Invisibility</option>
+    </select>
+
+    <label for="characterLevel">Enter Character Level:</label>
+    <input type="number" id="characterLevel" placeholder="Enter your character's level" min="1" max="20">
+
+    <button onclick="generateCraftingDetails()">Generate Crafting Details</button>
+
+    <div id="craftingResult"></div>
+
+    <button id="proceedButton" style="display:none;" onclick="attemptCrafting()">Proceed with Crafting</button>
+
+    <div id="finalResult"></div>
+  </div>
+
+  <script>
+    // Define enchantments and their properties
+    const enchantments = {
+      "Flaming Weapon": { difficulty: 15, time: 7, gold: 500, materials: "Fire Essence, Mithril Ore" },
+      "Frost Weapon": { difficulty: 15, time: 7, gold: 500, materials: "Frost Essence, Mithril Ore" },
+      "Lightning Weapon": { difficulty: 20, time: 10, gold: 1000, materials: "Lightning Crystal, Adamantine" },
+      "Armor of Resistance": { difficulty: 18, time: 12, gold: 800, materials: "Enchanted Leather, Mithril Ore" },
+      "Cloak of Invisibility": { difficulty: 25, time: 20, gold: 5000, materials: "Shadow Cloth, Dragon Scale" }
+    };
+
+    function generateCraftingDetails() {
+      const item = document.getElementById("item").value;
+      const enchantment = document.getElementById("enchantment").value;
+      const level = parseInt(document.getElementById("characterLevel").value);
+
+      if (!level || level < 1) {
+        alert("Please enter a valid character level!");
+        return;
+      }
+
+      const enchantmentDetails = enchantments[enchantment];
+      const craftingResultDiv = document.getElementById("craftingResult");
+
+      craftingResultDiv.innerHTML = `
+        <h2>Crafting Details</h2>
+        <table>
+          <tr>
+            <th>Item</th>
+            <th>Enchantment</th>
+            <th>Materials</th>
+            <th>Gold Cost</th>
+            <th>Time (days)</th>
+            <th>Difficulty</th>
+          </tr>
+          <tr>
+            <td>${item}</td>
+            <td>${enchantment}</td>
+            <td>${enchantmentDetails.materials}</td>
+            <td>${enchantmentDetails.gold} gp</td>
+            <td>${enchantmentDetails.time}</td>
+            <td>${enchantmentDetails.difficulty}</td>
+          </tr>
+        </table>
+      `;
+      document.getElementById("proceedButton").style.display = "block";
+    }
+
+    function attemptCrafting() {
+      const enchantment = document.getElementById("enchantment").value;
+      const level = parseInt(document.getElementById("characterLevel").value);
+      const enchantmentDetails = enchantments[enchantment];
+
+      const roll = Math.floor(Math.random() * 20) + 1; // Simulate a d20 roll
+      const success = roll + level >= enchantmentDetails.difficulty;
+      const finalResultDiv = document.getElementById("finalResult");
+
+      if (success) {
+        finalResultDiv.innerHTML = `
+          <h2 class="success">Crafting Successful!</h2>
+          <p>You have successfully crafted a ${enchantment} ${document.getElementById("item").value}!</p>
+          <p>It took ${enchantmentDetails.time} days and is worth ${enchantmentDetails.gold * 2} gp.</p>
+        `;
+      } else {
+        finalResultDiv.innerHTML = `
+          <h2 class="failure">Crafting Failed!</h2>
+          <p>You failed to craft the item. Better luck next time!</p>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
