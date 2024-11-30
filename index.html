@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Crafting & Enchanting Tool</title>
+  <title>Forgotten Realms Crafting Tool</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -42,103 +42,164 @@
 </head>
 <body>
   <div class="container">
-    <h1>Crafting & Enchanting Tool</h1>
+    <h1>Forgotten Realms Crafting & Enchanting Tool</h1>
+
+    <!-- Item Selection -->
     <label for="item">Select an Item:</label>
-    <select id="item">
-      <option value="Sword">Sword</option>
+    <select id="item" onchange="updateEnchantments()">
+      <option value="">-- Select an Item --</option>
+      <option value="Longsword">Longsword</option>
+      <option value="Dagger">Dagger</option>
       <option value="Shield">Shield</option>
-      <option value="Bow">Bow</option>
-      <option value="Plate Armor">Plate Armor</option>
+      <option value="Cloak">Cloak</option>
+      <option value="Boots">Boots</option>
       <option value="Ring">Ring</option>
     </select>
 
+    <!-- Enchantment Selection -->
     <label for="enchantment">Select an Enchantment:</label>
     <select id="enchantment">
-      <option value="Flaming Weapon">Flaming Weapon</option>
-      <option value="Frost Weapon">Frost Weapon</option>
-      <option value="Lightning Weapon">Lightning Weapon</option>
-      <option value="Armor of Resistance">Armor of Resistance</option>
-      <option value="Cloak of Invisibility">Cloak of Invisibility</option>
+      <option value="">-- Select an Enchantment --</option>
     </select>
 
+    <!-- Character Bonuses -->
+    <label for="charismaBonus">Enter Character’s Ability Modifier:</label>
+    <input type="number" id="charismaBonus" placeholder="Enter ability modifier (e.g., +2)" min="0">
+
+    <label for="toolProficiency">Proficiency Bonus (if any):</label>
+    <input type="number" id="toolProficiency" placeholder="Enter proficiency bonus (e.g., +2)" min="0">
+
+    <!-- Special Forges and Environments -->
+    <label for="environment">Select a Special Circumstance:</label>
+    <select id="environment">
+      <option value="">-- None --</option>
+      <option value="Gauntlgrym Forge">Gauntlgrym Forge (+2 crafting bonus for weapons)</option>
+      <option value="Evermeet">Evermeet (+2 crafting bonus for enchanted gear)</option>
+      <option value="Elturgard">Elturgard (50% reduced crafting time for armor)</option>
+    </select>
+
+    <!-- Character Level -->
     <label for="characterLevel">Enter Character Level:</label>
     <input type="number" id="characterLevel" placeholder="Enter your character's level" min="1" max="20">
 
     <button onclick="generateCraftingDetails()">Generate Crafting Details</button>
 
     <div id="craftingResult"></div>
-
     <button id="proceedButton" style="display:none;" onclick="attemptCrafting()">Proceed with Crafting</button>
-
     <div id="finalResult"></div>
   </div>
 
   <script>
-    // Define enchantments and their properties
-    const enchantments = {
-      "Flaming Weapon": { difficulty: 15, time: 7, gold: 500, materials: "Fire Essence, Mithril Ore" },
-      "Frost Weapon": { difficulty: 15, time: 7, gold: 500, materials: "Frost Essence, Mithril Ore" },
-      "Lightning Weapon": { difficulty: 20, time: 10, gold: 1000, materials: "Lightning Crystal, Adamantine" },
-      "Armor of Resistance": { difficulty: 18, time: 12, gold: 800, materials: "Enchanted Leather, Mithril Ore" },
-      "Cloak of Invisibility": { difficulty: 25, time: 20, gold: 5000, materials: "Shadow Cloth, Dragon Scale" }
+    // Enchantment options by item
+    const enchantmentsByItem = {
+      "Longsword": [
+        { name: "Flaming Weapon", difficulty: 15, materials: "Fire Essence, Longsword", gold: 500, time: 7 },
+        { name: "Weapon +1", difficulty: 10, materials: "Magical Iron Ingot, Longsword", gold: 100, time: 5 }
+      ],
+      "Dagger": [
+        { name: "Frost Weapon", difficulty: 15, materials: "Frost Essence, Dagger", gold: 500, time: 7 },
+        { name: "Weapon +1", difficulty: 10, materials: "Magical Iron Ingot, Dagger", gold: 100, time: 5 }
+      ],
+      "Shield": [
+        { name: "Shield +1", difficulty: 12, materials: "Arcane Rune, Shield", gold: 300, time: 6 },
+        { name: "Armor of Resistance", difficulty: 18, materials: "Enchanted Leather, Shield", gold: 800, time: 12 }
+      ],
+      "Cloak": [
+        { name: "Cloak of Protection", difficulty: 12, materials: "Dire Wolf Hide, Cloak", gold: 300, time: 10 },
+        { name: "Cloak of Invisibility", difficulty: 25, materials: "Shadow Cloth, Cloak", gold: 5000, time: 20 }
+      ],
+      "Boots": [
+        { name: "Boots of Elvenkind", difficulty: 12, materials: "Feywild Leather, Boots", gold: 300, time: 10 }
+      ],
+      "Ring": [
+        { name: "Ring of Jumping", difficulty: 10, materials: "Arcane Rune, Ring", gold: 200, time: 8 },
+        { name: "Ring of Regeneration", difficulty: 20, materials: "Troll Heart Essence, Ring", gold: 4000, time: 15 }
+      ]
     };
 
+    // Update enchantments dropdown based on selected item
+    function updateEnchantments() {
+      const item = document.getElementById("item").value;
+      const enchantmentDropdown = document.getElementById("enchantment");
+      enchantmentDropdown.innerHTML = '<option value="">-- Select an Enchantment --</option>';
+
+      if (enchantmentsByItem[item]) {
+        enchantmentsByItem[item].forEach(enchantment => {
+          const option = document.createElement("option");
+          option.value = enchantment.name;
+          option.textContent = enchantment.name;
+          enchantmentDropdown.appendChild(option);
+        });
+      }
+    }
+
+    // Generate crafting details
     function generateCraftingDetails() {
       const item = document.getElementById("item").value;
-      const enchantment = document.getElementById("enchantment").value;
-      const level = parseInt(document.getElementById("characterLevel").value);
+      const enchantmentName = document.getElementById("enchantment").value;
+      const charismaBonus = parseInt(document.getElementById("charismaBonus").value) || 0;
+      const proficiencyBonus = parseInt(document.getElementById("toolProficiency").value) || 0;
+      const environment = document.getElementById("environment").value;
+      const characterLevel = parseInt(document.getElementById("characterLevel").value);
 
-      if (!level || level < 1) {
-        alert("Please enter a valid character level!");
+      const enchantment = enchantmentsByItem[item]?.find(e => e.name === enchantmentName);
+      if (!enchantment || !item || isNaN(characterLevel)) {
+        alert("Please fill out all required fields.");
         return;
       }
 
-      const enchantmentDetails = enchantments[enchantment];
-      const craftingResultDiv = document.getElementById("craftingResult");
+      let craftingDC = enchantment.difficulty;
+      let timeRequired = enchantment.time;
+      let successBonus = charismaBonus + proficiencyBonus;
 
-      craftingResultDiv.innerHTML = `
+      if (environment === "Gauntlgrym Forge" && item !== "Cloak") {
+        successBonus += 2;
+      } else if (environment === "Evermeet") {
+        successBonus += 2;
+      } else if (environment === "Elturgard" && (item === "Shield" || item === "Cloak")) {
+        timeRequired = Math.ceil(timeRequired / 2);
+      }
+
+      const adjustedDC = craftingDC - successBonus;
+
+      document.getElementById("craftingResult").innerHTML = `
         <h2>Crafting Details</h2>
-        <table>
-          <tr>
-            <th>Item</th>
-            <th>Enchantment</th>
-            <th>Materials</th>
-            <th>Gold Cost</th>
-            <th>Time (days)</th>
-            <th>Difficulty</th>
-          </tr>
-          <tr>
-            <td>${item}</td>
-            <td>${enchantment}</td>
-            <td>${enchantmentDetails.materials}</td>
-            <td>${enchantmentDetails.gold} gp</td>
-            <td>${enchantmentDetails.time}</td>
-            <td>${enchantmentDetails.difficulty}</td>
-          </tr>
-        </table>
+        <p><strong>Item:</strong> ${item}</p>
+        <p><strong>Enchantment:</strong> ${enchantmentName}</p>
+        <p><strong>Materials Required:</strong> ${enchantment.materials}</p>
+        <p><strong>Gold Cost:</strong> ${enchantment.gold} gp</p>
+        <p><strong>Crafting Time:</strong> ${timeRequired} days</p>
+        <p><strong>Base Crafting DC:</strong> ${craftingDC}</p>
+        <p><strong>Adjusted Crafting DC (after bonuses):</strong> ${adjustedDC > 0 ? adjustedDC : 0}</p>
       `;
+
       document.getElementById("proceedButton").style.display = "block";
     }
 
+    // Simulate crafting attempt
     function attemptCrafting() {
-      const enchantment = document.getElementById("enchantment").value;
       const level = parseInt(document.getElementById("characterLevel").value);
-      const enchantmentDetails = enchantments[enchantment];
+      const item = document.getElementById("item").value;
+      const enchantmentName = document.getElementById("enchantment").value;
+      const charismaBonus = parseInt(document.getElementById("charismaBonus").value) || 0;
+      const proficiencyBonus = parseInt(document.getElementById("toolProficiency").value) || 0;
 
-      const roll = Math.floor(Math.random() * 20) + 1; // Simulate a d20 roll
-      const success = roll + level >= enchantmentDetails.difficulty;
-      const finalResultDiv = document.getElementById("finalResult");
+      const enchantment = enchantmentsByItem[item]?.find(e => e.name === enchantmentName);
+      const roll = Math.floor(Math.random() * 20) + 1;
+      const success = roll + level + charismaBonus + proficiencyBonus >= enchantment.difficulty;
+
+      const resultDiv = document.getElementById("finalResult");
 
       if (success) {
-        finalResultDiv.innerHTML = `
+        resultDiv.innerHTML = `
           <h2 class="success">Crafting Successful!</h2>
-          <p>You have successfully crafted a ${enchantment} ${document.getElementById("item").value}!</p>
-          <p>It took ${enchantmentDetails.time} days and is worth ${enchantmentDetails.gold * 2} gp.</p>
+          <p>You successfully crafted a ${enchantmentName} ${item}!</p>
+          <p>It cost ${enchantment.gold} gp and took ${enchantment.time} days.</p>
         `;
       } else {
-        finalResultDiv.innerHTML = `
+        resultDiv.innerHTML = `
           <h2 class="failure">Crafting Failed!</h2>
-          <p>You failed to craft the item. Better luck next time!</p>
+          <p>You failed to craft the ${enchantmentName} ${item}. Better luck next time!</p>
         `;
       }
     }
