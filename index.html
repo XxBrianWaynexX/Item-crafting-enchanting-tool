@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Expanded Crafting & Enchanting Tool</title>
+  <title>Comprehensive Crafting & Enchanting Tool</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -38,11 +38,15 @@
       color: red;
       font-weight: bold;
     }
+    .negative-effect {
+      color: darkred;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Expanded Crafting & Enchanting Tool</h1>
+    <h1>Comprehensive Crafting & Enchanting Tool</h1>
 
     <!-- Item Selection -->
     <label for="item">Select an Item:</label>
@@ -55,6 +59,7 @@
       <option value="Rings">Rings</option>
       <option value="Boots">Boots</option>
       <option value="Spellcasting Focus">Spellcasting Focus (Wands, Staves)</option>
+      <option value="Wondrous Items">Wondrous Items</option>
     </select>
 
     <!-- Enchantment Selection -->
@@ -94,40 +99,48 @@
     // Expanded enchantments by item category
     const enchantmentsByCategory = {
       "Weapons": [
-        { name: "Weapon +1", difficulty: 10, materials: "Magical Iron Ingot", gold: 100, time: 5 },
-        { name: "Weapon +2", difficulty: 15, materials: "Refined Mithril", gold: 500, time: 10 },
-        { name: "Flaming Weapon", difficulty: 15, materials: "Fire Essence", gold: 500, time: 7 },
-        { name: "Frost Weapon", difficulty: 15, materials: "Frost Essence", gold: 500, time: 7 },
-        { name: "Vorpal Weapon", difficulty: 25, materials: "Dragon Fang", gold: 5000, time: 30 }
+        { name: "Weapon +1", difficulty: 10, materials: "Magical Iron Ingot", gold: 100, time: 5, minLevel: 1 },
+        { name: "Weapon +2", difficulty: 15, materials: "Refined Mithril", gold: 500, time: 10, minLevel: 5 },
+        { name: "Flaming Weapon", difficulty: 15, materials: "Fire Essence", gold: 500, time: 7, minLevel: 5 },
+        { name: "Frost Weapon", difficulty: 15, materials: "Frost Essence", gold: 500, time: 7, minLevel: 5 },
+        { name: "Vorpal Weapon", difficulty: 25, materials: "Dragon Fang", gold: 5000, time: 30, minLevel: 10 }
       ],
       "Armor": [
-        { name: "Armor +1", difficulty: 12, materials: "Enchanted Steel", gold: 200, time: 6 },
-        { name: "Armor +2", difficulty: 18, materials: "Refined Mithril", gold: 800, time: 12 },
-        { name: "Armor of Resistance", difficulty: 18, materials: "Enchanted Leather", gold: 800, time: 12 }
+        { name: "Armor +1", difficulty: 12, materials: "Enchanted Steel", gold: 200, time: 6, minLevel: 3 },
+        { name: "Armor +2", difficulty: 18, materials: "Refined Mithril", gold: 800, time: 12, minLevel: 6 },
+        { name: "Armor of Resistance", difficulty: 18, materials: "Enchanted Leather", gold: 800, time: 12, minLevel: 6 }
       ],
       "Shields": [
-        { name: "Shield +1", difficulty: 12, materials: "Magical Wood", gold: 300, time: 6 },
-        { name: "Shield +2", difficulty: 18, materials: "Arcane Steel", gold: 600, time: 10 },
-        { name: "Armor of Resistance (Shield)", difficulty: 18, materials: "Enchanted Leather", gold: 800, time: 12 }
+        { name: "Shield +1", difficulty: 12, materials: "Magical Wood", gold: 300, time: 6, minLevel: 3 },
+        { name: "Shield +2", difficulty: 18, materials: "Arcane Steel", gold: 600, time: 10, minLevel: 7 },
+        { name: "Armor of Resistance (Shield)", difficulty: 18, materials: "Enchanted Leather", gold: 800, time: 12, minLevel: 7 }
       ],
       "Cloaks": [
-        { name: "Cloak of Protection", difficulty: 12, materials: "Dire Wolf Hide", gold: 300, time: 10 },
-        { name: "Cloak of Displacement", difficulty: 20, materials: "Displacer Beast Hide", gold: 3500, time: 20 },
-        { name: "Cloak of Invisibility", difficulty: 25, materials: "Shadow Cloth", gold: 5000, time: 25 }
+        { name: "Cloak of Protection", difficulty: 12, materials: "Dire Wolf Hide", gold: 300, time: 10, minLevel: 3 },
+        { name: "Cloak of Displacement", difficulty: 20, materials: "Displacer Beast Hide", gold: 3500, time: 20, minLevel: 10 },
+        { name: "Cloak of Invisibility", difficulty: 25, materials: "Shadow Cloth", gold: 5000, time: 25, minLevel: 15 }
       ],
       "Rings": [
-        { name: "Ring of Protection", difficulty: 15, materials: "Platinum Ring", gold: 800, time: 15 },
-        { name: "Ring of Spell Storing", difficulty: 20, materials: "Enchanted Platinum", gold: 2000, time: 18 },
-        { name: "Ring of Regeneration", difficulty: 20, materials: "Troll Heart Essence", gold: 4000, time: 25 }
+        { name: "Ring of Protection", difficulty: 15, materials: "Platinum Ring", gold: 800, time: 15, minLevel: 5 },
+        { name: "Ring of Spell Storing", difficulty: 20, materials: "Enchanted Platinum", gold: 2000, time: 18, minLevel: 10 },
+        { name: "Ring of Regeneration", difficulty: 20, materials: "Troll Heart Essence", gold: 4000, time: 25, minLevel: 12 }
       ],
       "Boots": [
-        { name: "Boots of Elvenkind", difficulty: 12, materials: "Feywild Leather", gold: 300, time: 10 },
-        { name: "Boots of Speed", difficulty: 18, materials: "Quicksilver Essence", gold: 1200, time: 12 }
+        { name: "Boots of Elvenkind", difficulty: 12, materials: "Feywild Leather", gold: 300, time: 10, minLevel: 3 },
+        { name: "Boots of Speed", difficulty: 18, materials: "Quicksilver Essence", gold: 1200, time: 12, minLevel: 6 }
       ],
       "Spellcasting Focus": [
-        { name: "Wand of Magic Missiles", difficulty: 15, materials: "Arcane Wood", gold: 500, time: 8 },
-        { name: "Staff of the Woodlands", difficulty: 20, materials: "Feywood Staff", gold: 3000, time: 20 },
-        { name: "Rod of Absorption", difficulty: 25, materials: "Adamantine Core", gold: 5000, time: 30 }
+        { name: "Wand of Magic Missiles", difficulty: 15, materials: "Arcane Wood", gold: 500, time: 8, minLevel: 5 },
+        { name: "Staff of the Woodlands", difficulty: 20, materials: "Feywood Staff", gold: 3000, time: 20, minLevel: 10 },
+        { name: "Rod of Absorption", difficulty: 25, materials: "Adamantine Core", gold: 5000, time: 30, minLevel: 15 }
+      ],
+      "Wondrous Items": [
+        { name: "Alchemy Jug", difficulty: 10, materials: "Ceramic Jug, Water Essence", gold: 100, time: 5, minLevel: 1 },
+        { name: "Bag of Holding", difficulty: 12, materials: "Fey Spider Silk", gold: 150, time: 7, minLevel: 3 },
+        { name: "Winged Boots", difficulty: 18, materials: "Feathers from an Air Elemental", gold: 1000, time: 15, minLevel: 6 },
+        { name: "Cloak of Displacement", difficulty: 20, materials: "Displacer Beast Hide", gold: 3500, time: 20, minLevel: 10 },
+        { name: "Amulet of Health", difficulty: 20, materials: "Troll Blood Essence", gold: 2000, time: 18, minLevel: 12 },
+        { name: "Necklace of Fireballs", difficulty: 18, materials: "Ruby Dust", gold: 2000, time: 15, minLevel: 8 }
       ]
     };
 
@@ -159,6 +172,11 @@
       const enchantment = enchantmentsByCategory[category]?.find(e => e.name === enchantmentName);
       if (!enchantment || !category || isNaN(characterLevel)) {
         alert("Please fill out all required fields.");
+        return;
+      }
+
+      if (characterLevel < enchantment.minLevel) {
+        alert(`Your character must be at least level ${enchantment.minLevel} to craft this item!`);
         return;
       }
 
@@ -198,9 +216,18 @@
       const roll = Math.floor(Math.random() * 20) + 1;
       const success = roll + level >= enchantment.difficulty;
 
-      document.getElementById("finalResult").innerHTML = success
-        ? `<h2 class="success">Success!</h2><p>You crafted a ${enchantmentName} ${category}!</p>`
-        : `<h2 class="failure">Failure!</h2><p>You failed to craft the ${enchantmentName} ${category}. Better luck next time!</p>`;
+      if (success) {
+        document.getElementById("finalResult").innerHTML = `
+          <h2 class="success">Success!</h2>
+          <p>You crafted a ${enchantmentName} ${category}!</p>
+        `;
+      } else {
+        document.getElementById("finalResult").innerHTML = `
+          <h2 class="failure">Failure!</h2>
+          <p>You failed to craft the ${enchantmentName} ${category}. Better luck next time!</p>
+          <p class="negative-effect">Negative Effect: You lose 50% of the materials used in crafting!</p>
+        `;
+      }
     }
   </script>
 </body>
