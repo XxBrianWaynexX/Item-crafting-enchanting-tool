@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comprehensive Crafting & Enchanting Tool</title>
+  <title>Weapon Crafting & Enchanting Tool</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -18,18 +18,6 @@
       padding: 8px;
       width: 100%;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 20px 0;
-    }
-    table, th, td {
-      border: 1px solid black;
-    }
-    th, td {
-      padding: 8px;
-      text-align: center;
-    }
     .success {
       color: green;
       font-weight: bold;
@@ -38,7 +26,7 @@
       color: red;
       font-weight: bold;
     }
-    .negative-effect {
+    .failure-effect {
       color: darkred;
       font-weight: bold;
     }
@@ -46,186 +34,148 @@
 </head>
 <body>
   <div class="container">
-    <h1>Comprehensive Crafting & Enchanting Tool</h1>
+    <h1>Weapon Crafting & Enchanting Tool</h1>
 
-    <!-- Item Selection -->
-    <label for="item">Select an Item:</label>
-    <select id="item" onchange="updateEnchantments()">
-      <option value="">-- Select an Item --</option>
-      <option value="Weapons">Weapons (Longswords, Daggers, etc.)</option>
-      <option value="Armor">Armor (Light, Medium, Heavy)</option>
-      <option value="Shields">Shields</option>
-      <option value="Cloaks">Cloaks</option>
-      <option value="Rings">Rings</option>
-      <option value="Boots">Boots</option>
-      <option value="Spellcasting Focus">Spellcasting Focus (Wands, Staves)</option>
-      <option value="Wondrous Items">Wondrous Items</option>
+    <!-- Rarity Selection -->
+    <label for="rarity">Select Rarity:</label>
+    <select id="rarity" onchange="updateWeapons()">
+      <option value="">-- Select Rarity --</option>
+      <option value="Common">Common</option>
+      <option value="Uncommon">Uncommon</option>
+      <option value="Rare">Rare</option>
+      <option value="Very Rare">Very Rare</option>
     </select>
 
-    <!-- Enchantment Selection -->
-    <label for="enchantment">Select an Enchantment:</label>
-    <select id="enchantment">
-      <option value="">-- Select an Enchantment --</option>
-    </select>
-
-    <!-- Character Bonuses -->
-    <label for="charismaBonus">Enter Character’s Ability Modifier:</label>
-    <input type="number" id="charismaBonus" placeholder="Enter ability modifier (e.g., +2)" min="0">
-
-    <label for="toolProficiency">Proficiency Bonus (if any):</label>
-    <input type="number" id="toolProficiency" placeholder="Enter proficiency bonus (e.g., +2)" min="0">
-
-    <!-- Special Forges and Environments -->
-    <label for="environment">Select a Special Circumstance:</label>
-    <select id="environment">
-      <option value="">-- None --</option>
-      <option value="Gauntlgrym Forge">Gauntlgrym Forge (+2 crafting bonus for weapons)</option>
-      <option value="Evermeet">Evermeet (+2 crafting bonus for enchanted gear)</option>
-      <option value="Elturgard">Elturgard (50% reduced crafting time for armor)</option>
+    <!-- Weapon Selection -->
+    <label for="weapon">Select a Weapon:</label>
+    <select id="weapon">
+      <option value="">-- Select a Weapon --</option>
     </select>
 
     <!-- Character Level -->
     <label for="characterLevel">Enter Character Level:</label>
     <input type="number" id="characterLevel" placeholder="Enter your character's level" min="1" max="20">
 
+    <!-- Bonuses -->
+    <label for="bonuses">Enter Crafting Bonuses (Optional):</label>
+    <input type="number" id="bonuses" placeholder="Enter total bonuses (e.g., +2 from proficiency)" min="0">
+
     <button onclick="generateCraftingDetails()">Generate Crafting Details</button>
 
-    <div id="craftingResult"></div>
-    <button id="proceedButton" style="display:none;" onclick="attemptCrafting()">Proceed with Crafting</button>
-    <div id="finalResult"></div>
+    <div id="craftingDetails"></div>
+    <button id="craftButton" style="display:none;" onclick="attemptCrafting()">Attempt Crafting</button>
+    <div id="craftingResults"></div>
   </div>
 
   <script>
-    // Expanded enchantments by item category
-    const enchantmentsByCategory = {
-      "Weapons": [
-        { name: "Weapon +1", difficulty: 10, materials: "Magical Iron Ingot", gold: 100, time: 5, minLevel: 1 },
+    // Complete list of magical weapons by rarity
+    const weaponsByRarity = {
+      "Common": [
+        { name: "Weapon +1", difficulty: 10, materials: "Magical Iron Ingot", gold: 100, time: 5, minLevel: 1 }
+      ],
+      "Uncommon": [
+        { name: "Javelin of Lightning", difficulty: 12, materials: "Charged Crystal, Javelin", gold: 150, time: 7, minLevel: 3 },
+        { name: "Moon-Touched Sword", difficulty: 10, materials: "Lunar Shard, Sword", gold: 100, time: 5, minLevel: 1 },
+        { name: "Dagger of Venom", difficulty: 15, materials: "Venom Gland, Dagger", gold: 200, time: 7, minLevel: 3 },
+        { name: "Weapon of Warning", difficulty: 12, materials: "Fey Essence, Weapon", gold: 150, time: 6, minLevel: 3 },
+        { name: "Shatterspike", difficulty: 12, materials: "Runed Steel, Longsword", gold: 250, time: 7, minLevel: 4 }
+      ],
+      "Rare": [
         { name: "Weapon +2", difficulty: 15, materials: "Refined Mithril", gold: 500, time: 10, minLevel: 5 },
-        { name: "Flaming Weapon", difficulty: 15, materials: "Fire Essence", gold: 500, time: 7, minLevel: 5 },
-        { name: "Frost Weapon", difficulty: 15, materials: "Frost Essence", gold: 500, time: 7, minLevel: 5 },
-        { name: "Vorpal Weapon", difficulty: 25, materials: "Dragon Fang", gold: 5000, time: 30, minLevel: 10 }
+        { name: "Dwarven Thrower", difficulty: 18, materials: "Dwarven Alloy, Enchanted Hammer", gold: 700, time: 12, minLevel: 6 },
+        { name: "Flame Tongue", difficulty: 15, materials: "Fire Essence, Weapon", gold: 500, time: 10, minLevel: 5 },
+        { name: "Frost Brand", difficulty: 15, materials: "Frost Core, Weapon", gold: 500, time: 10, minLevel: 5 },
+        { name: "Dragon Slayer", difficulty: 15, materials: "Dragon Fang, Weapon", gold: 700, time: 12, minLevel: 6 }
       ],
-      "Armor": [
-        { name: "Armor +1", difficulty: 12, materials: "Enchanted Steel", gold: 200, time: 6, minLevel: 3 },
-        { name: "Armor +2", difficulty: 18, materials: "Refined Mithril", gold: 800, time: 12, minLevel: 6 },
-        { name: "Armor of Resistance", difficulty: 18, materials: "Enchanted Leather", gold: 800, time: 12, minLevel: 6 }
-      ],
-      "Shields": [
-        { name: "Shield +1", difficulty: 12, materials: "Magical Wood", gold: 300, time: 6, minLevel: 3 },
-        { name: "Shield +2", difficulty: 18, materials: "Arcane Steel", gold: 600, time: 10, minLevel: 7 },
-        { name: "Armor of Resistance (Shield)", difficulty: 18, materials: "Enchanted Leather", gold: 800, time: 12, minLevel: 7 }
-      ],
-      "Cloaks": [
-        { name: "Cloak of Protection", difficulty: 12, materials: "Dire Wolf Hide", gold: 300, time: 10, minLevel: 3 },
-        { name: "Cloak of Displacement", difficulty: 20, materials: "Displacer Beast Hide", gold: 3500, time: 20, minLevel: 10 },
-        { name: "Cloak of Invisibility", difficulty: 25, materials: "Shadow Cloth", gold: 5000, time: 25, minLevel: 15 }
-      ],
-      "Rings": [
-        { name: "Ring of Protection", difficulty: 15, materials: "Platinum Ring", gold: 800, time: 15, minLevel: 5 },
-        { name: "Ring of Spell Storing", difficulty: 20, materials: "Enchanted Platinum", gold: 2000, time: 18, minLevel: 10 },
-        { name: "Ring of Regeneration", difficulty: 20, materials: "Troll Heart Essence", gold: 4000, time: 25, minLevel: 12 }
-      ],
-      "Boots": [
-        { name: "Boots of Elvenkind", difficulty: 12, materials: "Feywild Leather", gold: 300, time: 10, minLevel: 3 },
-        { name: "Boots of Speed", difficulty: 18, materials: "Quicksilver Essence", gold: 1200, time: 12, minLevel: 6 }
-      ],
-      "Spellcasting Focus": [
-        { name: "Wand of Magic Missiles", difficulty: 15, materials: "Arcane Wood", gold: 500, time: 8, minLevel: 5 },
-        { name: "Staff of the Woodlands", difficulty: 20, materials: "Feywood Staff", gold: 3000, time: 20, minLevel: 10 },
-        { name: "Rod of Absorption", difficulty: 25, materials: "Adamantine Core", gold: 5000, time: 30, minLevel: 15 }
-      ],
-      "Wondrous Items": [
-        { name: "Alchemy Jug", difficulty: 10, materials: "Ceramic Jug, Water Essence", gold: 100, time: 5, minLevel: 1 },
-        { name: "Bag of Holding", difficulty: 12, materials: "Fey Spider Silk", gold: 150, time: 7, minLevel: 3 },
-        { name: "Winged Boots", difficulty: 18, materials: "Feathers from an Air Elemental", gold: 1000, time: 15, minLevel: 6 },
-        { name: "Cloak of Displacement", difficulty: 20, materials: "Displacer Beast Hide", gold: 3500, time: 20, minLevel: 10 },
-        { name: "Amulet of Health", difficulty: 20, materials: "Troll Blood Essence", gold: 2000, time: 18, minLevel: 12 },
-        { name: "Necklace of Fireballs", difficulty: 18, materials: "Ruby Dust", gold: 2000, time: 15, minLevel: 8 }
+      "Very Rare": [
+        { name: "Weapon +3", difficulty: 20, materials: "Refined Adamantine", gold: 1500, time: 20, minLevel: 10 },
+        { name: "Vorpal Sword", difficulty: 25, materials: "Vorpal Shard, Dragon Fang", gold: 5000, time: 30, minLevel: 15 },
+        { name: "Holy Avenger", difficulty: 25, materials: "Celestial Core, Weapon", gold: 5000, time: 30, minLevel: 15 },
+        { name: "Blackrazor", difficulty: 22, materials: "Shadow Essence, Weapon", gold: 4000, time: 25, minLevel: 13 },
+        { name: "Sword of Sharpness", difficulty: 20, materials: "Obsidian Edge, Weapon", gold: 3000, time: 20, minLevel: 12 }
       ]
     };
 
-    // Update enchantments dropdown based on selected item category
-    function updateEnchantments() {
-      const category = document.getElementById("item").value;
-      const enchantmentDropdown = document.getElementById("enchantment");
-      enchantmentDropdown.innerHTML = '<option value="">-- Select an Enchantment --</option>';
+    // Failure effects table
+    const failureEffects = [
+      "The weapon is cursed, emitting an unsettling aura.",
+      "You lose all materials used in the crafting process.",
+      "The weapon is unstable, dealing half its intended damage.",
+      "An explosion damages the crafting area (1d6 fire damage to all nearby).",
+      "A planar rift appears, summoning a minor elemental (DM decides type).",
+      "The weapon is incomplete and nonfunctional, requiring additional materials."
+    ];
 
-      if (enchantmentsByCategory[category]) {
-        enchantmentsByCategory[category].forEach(enchantment => {
+    // Update weapon dropdown based on rarity selection
+    function updateWeapons() {
+      const rarity = document.getElementById("rarity").value;
+      const weaponDropdown = document.getElementById("weapon");
+      weaponDropdown.innerHTML = '<option value="">-- Select a Weapon --</option>';
+
+      if (weaponsByRarity[rarity]) {
+        weaponsByRarity[rarity].forEach(weapon => {
           const option = document.createElement("option");
-          option.value = enchantment.name;
-          option.textContent = `${enchantment.name}`;
-          enchantmentDropdown.appendChild(option);
+          option.value = weapon.name;
+          option.textContent = weapon.name;
+          weaponDropdown.appendChild(option);
         });
       }
     }
 
     // Generate crafting details
     function generateCraftingDetails() {
-      const category = document.getElementById("item").value;
-      const enchantmentName = document.getElementById("enchantment").value;
-      const charismaBonus = parseInt(document.getElementById("charismaBonus").value) || 0;
-      const proficiencyBonus = parseInt(document.getElementById("toolProficiency").value) || 0;
-      const environment = document.getElementById("environment").value;
+      const rarity = document.getElementById("rarity").value;
+      const weaponName = document.getElementById("weapon").value;
       const characterLevel = parseInt(document.getElementById("characterLevel").value);
+      const bonuses = parseInt(document.getElementById("bonuses").value) || 0;
 
-      const enchantment = enchantmentsByCategory[category]?.find(e => e.name === enchantmentName);
-      if (!enchantment || !category || isNaN(characterLevel)) {
-        alert("Please fill out all required fields.");
+      if (!rarity || !weaponName || isNaN(characterLevel)) {
+        alert("Please fill out all fields before proceeding.");
         return;
       }
 
-      if (characterLevel < enchantment.minLevel) {
-        alert(`Your character must be at least level ${enchantment.minLevel} to craft this item!`);
+      const weapon = weaponsByRarity[rarity].find(w => w.name === weaponName);
+
+      if (characterLevel < weapon.minLevel) {
+        alert(`Your character must be at least level ${weapon.minLevel} to craft this weapon!`);
         return;
       }
 
-      let craftingDC = enchantment.difficulty;
-      let timeRequired = enchantment.time;
-      let successBonus = charismaBonus + proficiencyBonus;
+      const adjustedDC = weapon.difficulty - bonuses;
 
-      if (environment === "Gauntlgrym Forge" && category === "Weapons") {
-        successBonus += 2;
-      } else if (environment === "Evermeet") {
-        successBonus += 2;
-      } else if (environment === "Elturgard" && category === "Armor") {
-        timeRequired = Math.ceil(timeRequired / 2);
-      }
-
-      const adjustedDC = craftingDC - successBonus;
-
-      document.getElementById("craftingResult").innerHTML = `
+      document.getElementById("craftingDetails").innerHTML = `
         <h2>Crafting Details</h2>
-        <p><strong>Item:</strong> ${category}</p>
-        <p><strong>Enchantment:</strong> ${enchantmentName}</p>
-        <p><strong>Materials:</strong> ${enchantment.materials}</p>
-        <p><strong>Gold Cost:</strong> ${enchantment.gold} gp</p>
-        <p><strong>Crafting Time:</strong> ${timeRequired} days</p>
-        <p><strong>Adjusted DC:</strong> ${adjustedDC} (Original: ${craftingDC})</p>
+        <p><strong>Weapon:</strong> ${weapon.name}</p>
+        <p><strong>Materials:</strong> ${weapon.materials}</p>
+        <p><strong>Gold Cost:</strong> ${weapon.gold} gp</p>
+        <p><strong>Crafting Time:</strong> ${weapon.time} days</p>
+        <p><strong>Crafting Difficulty (DC):</strong> ${adjustedDC} (Base DC: ${weapon.difficulty})</p>
       `;
-      document.getElementById("proceedButton").style.display = "block";
+      document.getElementById("craftButton").style.display = "block";
     }
 
-    // Attempt crafting roll
+    // Attempt crafting
     function attemptCrafting() {
-      const level = parseInt(document.getElementById("characterLevel").value);
-      const category = document.getElementById("item").value;
-      const enchantmentName = document.getElementById("enchantment").value;
+      const rarity = document.getElementById("rarity").value;
+      const weaponName = document.getElementById("weapon").value;
+      const characterLevel = parseInt(document.getElementById("characterLevel").value);
 
-      const enchantment = enchantmentsByCategory[category].find(e => e.name === enchantmentName);
-      const roll = Math.floor(Math.random() * 20) + 1;
-      const success = roll + level >= enchantment.difficulty;
+      const weapon = weaponsByRarity[rarity].find(w => w.name === weaponName);
+
+      const roll = Math.floor(Math.random() * 20) + 1; // Roll d20
+      const success = roll + characterLevel >= weapon.difficulty;
 
       if (success) {
-        document.getElementById("finalResult").innerHTML = `
+        document.getElementById("craftingResults").innerHTML = `
           <h2 class="success">Success!</h2>
-          <p>You crafted a ${enchantmentName} ${category}!</p>
+          <p>You crafted the ${weapon.name} successfully!</p>
         `;
       } else {
-        document.getElementById("finalResult").innerHTML = `
+        const failureEffect = failureEffects[Math.floor(Math.random() * failureEffects.length)];
+        document.getElementById("craftingResults").innerHTML = `
           <h2 class="failure">Failure!</h2>
-          <p>You failed to craft the ${enchantmentName} ${category}. Better luck next time!</p>
-          <p class="negative-effect">Negative Effect: You lose 50% of the materials used in crafting!</p>
+          <p>You failed to craft the ${weapon.name}.</p>
+          <p class="failure-effect">Effect: ${failureEffect}</p>
         `;
       }
     }
